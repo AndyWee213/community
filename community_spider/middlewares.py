@@ -4,8 +4,14 @@
 #
 # See documentation in:
 # https://doc.scrapy.org/en/latest/topics/spider-middleware.html
+import base64
+import random
 
 from scrapy import signals
+#这是一个随机UserAgent的包，里面有很多UserAgent
+from fake_useragent import UserAgent
+
+from community_spider.settings import IPPOOL
 
 
 class CommunitySpiderSpiderMiddleware(object):
@@ -101,3 +107,36 @@ class CommunitySpiderDownloaderMiddleware(object):
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
+
+class RandomUserAgentMiddleware(object):
+    def __init__(self, crawler):
+        super(RandomUserAgentMiddleware, self).__init__()
+
+        self.ua = UserAgent()
+        self.ua_type = crawler.settings.get('RANDOM_UA_TYPE', 'random') #从setting文件中读取RANDOM_UA_TYPE值
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(crawler)
+
+    def process_request(self, request, spider):
+        def get_ua():
+            '''Gets random UA based on the type setting (random, firefox…)'''
+            return getattr(self.ua, self.ua_type)
+
+        user_agent_random=get_ua()
+        request.headers.setdefault('User-Agent', user_agent_random) #这样就是实现了User-Agent的随即变换
+
+class ProxyMiddleware(object):
+    # overwrite process request
+    def process_request(self, request, spider):
+        # Set the location of the proxy
+        ipaddr = random.choice(IPPOOL)
+        ip = ipaddr['ipaddr'].split(':')[0]
+        port = ipaddr['ipaddr'].split(':')[1]
+        request.meta['proxy'] = "http://" + ip + ":" + port
+        # Use the following lines if your proxy requires authentication
+        proxy_user_pass = b"weiqiang137@163.com:G1n@810518"
+        # setup basic authentication for the proxy
+        encoded_user_pass = base64.b64encode(proxy_user_pass)
+        request.headers['Proxy-Authorization'] = b'Basic ' + encoded_user_pass

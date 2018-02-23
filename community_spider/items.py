@@ -16,4 +16,7 @@ class CommunitySpiderItem(scrapy.Item):
     title = scrapy.Field()
     type = scrapy.Field()
     segment = scrapy.Field()
+    province = scrapy.Field()
+    city = scrapy.Field()
+    county = scrapy.Field()
     pass

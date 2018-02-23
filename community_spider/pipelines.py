@@ -9,7 +9,7 @@ import time
 from twisted.enterprise import adbapi
 
 
-class CommunitySpiderPipeline(object):
+class CommunitySpiderMysqlPipeline(object):
     def __init__(self, dbpool):
         self.dbpool = dbpool
 
@@ -41,14 +41,14 @@ class CommunitySpiderPipeline(object):
     # 写入数据库中
     # SQL语句在这里
     def _conditional_insert(self, tx, item):
-        result = tx.execute("select 1 from community where id = %(id)s", {"id": item['id']})
+        result = tx.execute("select 1 from community where url = %(url)s", {"url": item['url']})
         timestamp = (int(round(time.time() * 1000)))
         if result:
-            sql = "update community set url = %s, title = %s, type = %s, segment = %s, modify_time = %s where id = %s"
-            params = (item['url'], item['title'], item['type'], item['segment'], timestamp, item['id'])
+            sql = "update community set url = %s, title = %s, type = %s, province = %s, city = %s, county = %s, segment = %s, modify_time = %s where id = %s"
+            params = (item['url'], item['title'], item['type'], item['segment'], item['province'], item['city'], item['county'], timestamp, item['id'])
         else:
-            sql = "insert into community(id, url, title, type, segment, create_time, modify_time) values(%s, %s, %s, %s, %s, %s, %s)"
-            params = (item['id'], item['url'], item['title'], item['type'], item['segment'], timestamp, timestamp)
+            sql = "insert into community(id, url, title, type, segment, province, city, county, create_time, modify_time) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            params = (item['id'], item['url'], item['title'], item['type'], item['segment'], item['province'], item['city'], item['county'], timestamp, timestamp)
 
         tx.execute(sql, params)
 
@@ -56,3 +56,7 @@ class CommunitySpiderPipeline(object):
     def _handle_error(self, failuer, item, spider):
         print(failuer)
 
+class CommunitySpiderFilePipeline(object):
+    def process_item(self, item, spider):
+        file = open("communities.txt", 'a')
+        file.write(item['url'] + '\n')
