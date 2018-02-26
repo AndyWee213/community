@@ -4,7 +4,7 @@
 #
 # See documentation in:
 # https://doc.scrapy.org/en/latest/topics/spider-middleware.html
-import base64
+import urllib.request
 import random
 
 from scrapy import signals
@@ -131,12 +131,32 @@ class ProxyMiddleware(object):
     # overwrite process request
     def process_request(self, request, spider):
         # Set the location of the proxy
-        ipaddr = random.choice(IPPOOL)
-        ip = ipaddr['ipaddr'].split(':')[0]
-        port = ipaddr['ipaddr'].split(':')[1]
+        print(request.url)
+        found_available_proxy = False
+        while not found_available_proxy:
+            ips = random.choice(IPPOOL)
+            ip = ips['ipaddr'].split(':')[0]
+            port = ips['ipaddr'].split(':')[1]
+
+            url = "http://ip.chinaz.com/getip.aspx"
+            proxy_support = urllib.request.ProxyHandler({'http': ips['ipaddr']})
+            opener = urllib.request.build_opener(proxy_support)
+            urllib.request.install_opener(opener)
+            try:
+                print("test proxy" + ips['ipaddr'])
+                res = urllib.request.urlopen(url, timeout=2).read().decode("utf8")
+                found_available_proxy = True
+                print(res)
+                break
+            except Exception as e:
+                print("proxy failure:" + e.__str__())
+                continue
+
         request.meta['proxy'] = "http://" + ip + ":" + port
-        # Use the following lines if your proxy requires authentication
-        proxy_user_pass = b"weiqiang137@163.com:G1n@810518"
-        # setup basic authentication for the proxy
-        encoded_user_pass = base64.b64encode(proxy_user_pass)
-        request.headers['Proxy-Authorization'] = b'Basic ' + encoded_user_pass
+        return None
+
+        # # Use the following lines if your proxy requires authentication
+        # proxy_user_pass = b"weiqiang137@163.com:G1n@810518"
+        # # setup basic authentication for the proxy
+        # encoded_user_pass = base64.b64encode(proxy_user_pass)
+        # request.headers['Proxy-Authorization'] = b'Basic ' + encoded_user_pass

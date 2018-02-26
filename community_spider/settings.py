@@ -99,26 +99,16 @@ MYSQL_PASSWD = '123456'
 MYSQL_PORT = 3306
 
 DOWNLOADER_MIDDLEWARES = {
-    'community_spider.middlewares.ProxyMiddleware': 1,
+    # 'community_spider.middlewares.ProxyMiddleware': 1,
     'community_spider.middlewares.RandomUserAgentMiddleware': 543,
     'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,  # 这里要设置原来的scrapy的useragent为None，否者会被覆盖掉
 }
 RANDOM_UA_TYPE = 'random'
 
-DOWNLOAD_DELAY = 2
+#DOWNLOAD_DELAY = 2
 COOKIES_ENABLED = False
 
 IPPOOL = [
-    {"ipaddr": "103.86.46.2:10425"}
-    # {"ipaddr": "45.58.60.166:10425"},
-    # {"ipaddr": "45.58.60.147:10425"},
-    # {"ipaddr": "139.162.118.148:10425"},
-    # {"ipaddr": "103.27.77.27:10425"},
-    # {"ipaddr": "103.27.77.28:10425"},
-    # {"ipaddr": "210.16.120.114:10425"},
-    # {"ipaddr": "210.16.120.115:10425"},
-    # {"ipaddr": "103.98.74.4:10425"},
-    # {"ipaddr": "103.98.74.39:10425"},
-    # {"ipaddr": "221.143.21.90:10425"},
-    # {"ipaddr": "116.251.219.205:10425"}
+    {"ipaddr": "218.89.163.213:31689"},
+    {"ipaddr": "115.195.74.85:64527"}
 ]
